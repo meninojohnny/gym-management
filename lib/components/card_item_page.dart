@@ -20,18 +20,18 @@ class CardItemPage extends StatelessWidget {
           padding: EdgeInsets.all(10),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: Colors.blue,
+            color: Theme.of(context).cardColor,
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Icon(icon, size: 50, color: Colors.white,),
+              Icon(icon, size: 50, color: const Color.fromARGB(156, 0, 0, 0),),
               Text(
                 title,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 15,
-                  color: Colors.white
+                  color: Colors.black
                 ),
               )
             ],

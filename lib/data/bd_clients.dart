@@ -1,7 +1,6 @@
 import 'package:app_academia/models/client.dart';
 
-class BdClients {
-  final List<Client> _clients = [
+final List<Client> DUMMY_CLIENTS = [
   Client(
     id: '1000', 
     name: 'João Vitor Silva', 
@@ -99,25 +98,3 @@ class BdClients {
     dateEnd: '15/01/2024',
   ),
 ];
-
-  List<Client> get clients {
-    return _clients;
-  }
-
-  int get totalAlunosAtivos {
-    int total = 0;
-    clients.map((clie) {
-      if (clie.status == 'Ativo') {
-        total++;
-      }
-    }).toList();
-    return total;
-  }
-
-  List<Client> get clientsPendentes {
-    return clients.where((client) {
-      return client.status == 'Pendente';
-    }).toList();
-  }
-}
-

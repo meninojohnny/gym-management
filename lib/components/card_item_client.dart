@@ -15,7 +15,12 @@ class CardItemCLient extends StatelessWidget {
   Widget build(BuildContext context) {
   double mediaQuery = MediaQuery.sizeOf(context).width;
 
-    return Card(
+    return Container(
+      margin: EdgeInsets.only(bottom: 2.5, top: 2.5),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(228, 255, 255, 255),
+        borderRadius: BorderRadius.circular(2)        
+      ),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Row(

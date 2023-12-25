@@ -1,44 +1,51 @@
-
 import 'package:app_academia/components/card_item_client.dart';
 import 'package:app_academia/components/card_item_page.dart';
 import 'package:app_academia/components/card_label.dart';
 import 'package:app_academia/components/custom_app_bar.dart';
+import 'package:app_academia/models/client_list.dart';
 import 'package:app_academia/screens/client_screen.dart';
 import 'package:app_academia/utils/app_routes.dart';
 import 'package:flutter/material.dart';
-import 'package:app_academia/data/bd_clients.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  MyApp({super.key});
-
-  final BdClients _bdClients = BdClients();
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      initialRoute: AppRoutes.HOME_PAGE,
-      routes: {
-        AppRoutes.HOME_PAGE: (_) => HomePage(bdClients: _bdClients,),
-        AppRoutes.CLIENT_SCREEN: (_) => ClientScreen(bdClients: _bdClients,),
-      },
+    return ChangeNotifierProvider(
+      create: (_) => ClientList(),
+      child: MaterialApp(
+        theme: ThemeData(
+          primaryColor: const Color.fromARGB(255, 41, 213, 18),
+          cardColor: const Color.fromARGB(255, 199, 251, 13),
+          fontFamily: 'Lato'
+        ),
+        debugShowCheckedModeBanner: false,
+        initialRoute: AppRoutes.HOME_PAGE,
+        routes: {
+          AppRoutes.HOME_PAGE: (_) => const HomePage(),
+          AppRoutes.CLIENT_SCREEN: (_) => const ClientScreen(),
+        },
+      ),
     );
   }
 }
 
 class HomePage extends StatelessWidget {
-  final BdClients bdClients;
-  const HomePage({super.key, required this.bdClients});
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<ClientList>(context);
     return Scaffold(
+      backgroundColor: Color.fromARGB(255, 158, 159, 157),
       appBar: AppBar(
-        backgroundColor: Colors.blue,
+        backgroundColor: Theme.of(context).primaryColor,
         title: CustomAppBar(title: 'Tela inicial'),
       ),
       body: Padding(
@@ -70,12 +77,12 @@ class HomePage extends StatelessWidget {
               margin: const EdgeInsets.only(top: 20, bottom: 10),
               child: const Text(
                 'Alunos pendentes:',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
               ),
             ),
             const CardLabel(),
             Column(
-              children: bdClients.clientsPendentes.map((client) {
+              children: provider.clientsPendentes.map((client) {
                 return CardItemCLient(client: client);
               }).toList(),
             )
