@@ -1,6 +1,4 @@
-import 'package:app_academia/utils/app_routes.dart';
 import 'package:flutter/material.dart';
-
 class CardItemPage extends StatelessWidget {
   final String title;
   final String route;
@@ -17,21 +15,22 @@ class CardItemPage extends StatelessWidget {
         elevation: 5,
         shape: BeveledRectangleBorder(borderRadius: BorderRadius.circular(10)),
         child: Container(
-          padding: EdgeInsets.all(10),
+          padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
             color: Theme.of(context).cardColor,
           ),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 50, color: const Color.fromARGB(156, 0, 0, 0),),
+              Icon(icon, size: 50, color:const Color.fromARGB(255, 36, 36, 36),),
+              const SizedBox(height: 10,),
               Text(
                 title,
-                style: TextStyle(
+                style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 15,
-                  color: Colors.black
+                  color: Color.fromARGB(255, 36, 36, 36),
                 ),
               )
             ],

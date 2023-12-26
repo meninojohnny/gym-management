@@ -3,12 +3,18 @@ import 'package:app_academia/models/client.dart';
 import 'package:flutter/material.dart';
 
 class ClientList with ChangeNotifier {
-  List<Client> _clients = DUMMY_CLIENTS;
+  final List<Client> _clients = DUMMY_CLIENTS;
   bool _showPendentesOnly = false;
   bool _showAtivosOnly = false;
+  bool searching = false;
+  String valueSearch = '';
 
   List<Client> get clients {
-    if (_showPendentesOnly) {
+    if (searching) {
+      return _clients.where((client) {
+        return client.name.toUpperCase().contains(valueSearch.toUpperCase());
+      }).toList();
+    } else if (_showPendentesOnly) {
       return _clients.where((client) => client.status == 'Pendente').toList();
     } else if (_showAtivosOnly) {
       return _clients.where((client) => client.status == 'Ativo').toList();
@@ -23,7 +29,7 @@ class ClientList with ChangeNotifier {
   }
 
   void showAll() {
-    _showAtivosOnly = false;
+    _showPendentesOnly = false;
     _showAtivosOnly = false;
     notifyListeners();
   }
@@ -52,5 +58,20 @@ class ClientList with ChangeNotifier {
   
   void addClient(Client client) {
     _clients.add(client);
+  }
+
+  void removeClient(Client client) {
+    _clients.remove(client);
+    notifyListeners();
+  }
+
+  void toggleStatus(Client client) {
+    client.status = 'Ativo';
+    notifyListeners();
+  }
+
+  void getValueSearch(String value) {
+    valueSearch = value;
+    notifyListeners();
   }
 }

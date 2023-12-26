@@ -18,9 +18,9 @@ class CardLabel extends StatelessWidget {
         children: 
         (MediaQuery.sizeOf(context).width < 500)
         ? [
-          SizedBox(width: mediaQuery * .33, child: Text('Nome', style: TextStyle(fontWeight: FontWeight.bold),),),
-          const SizedBox(width: 70, child: Text('Plano', style: TextStyle(fontWeight: FontWeight.bold),)),
-          const SizedBox(width: 70, child: Text('Status', style: TextStyle(fontWeight: FontWeight.bold),)),
+          SizedBox(width: mediaQuery * .33, child: Text('Nome', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),),
+          const SizedBox(width: 70, child: Text('Plano', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),)),
+          const SizedBox(width: 70, child: Text('Status', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),)),
         ]
         : [
           const SizedBox(width: 80, child: Text('Matrícula', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),)),

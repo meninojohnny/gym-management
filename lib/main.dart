@@ -3,6 +3,7 @@ import 'package:app_academia/components/card_item_page.dart';
 import 'package:app_academia/components/card_label.dart';
 import 'package:app_academia/components/custom_app_bar.dart';
 import 'package:app_academia/models/client_list.dart';
+import 'package:app_academia/screens/client_detail_page.dart';
 import 'package:app_academia/screens/client_screen.dart';
 import 'package:app_academia/utils/app_routes.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +31,7 @@ class MyApp extends StatelessWidget {
         routes: {
           AppRoutes.HOME_PAGE: (_) => const HomePage(),
           AppRoutes.CLIENT_SCREEN: (_) => const ClientScreen(),
+          AppRoutes.CLIENT_DETAIL: (_) => ClientDetailPage()
         },
       ),
     );
@@ -43,7 +45,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = Provider.of<ClientList>(context);
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 158, 159, 157),
+      backgroundColor: const Color.fromARGB(255, 158, 159, 157),
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
         title: CustomAppBar(title: 'Tela inicial'),
@@ -77,7 +79,7 @@ class HomePage extends StatelessWidget {
               margin: const EdgeInsets.only(top: 20, bottom: 10),
               child: const Text(
                 'Alunos pendentes:',
-                style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+                style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ),
             const CardLabel(),

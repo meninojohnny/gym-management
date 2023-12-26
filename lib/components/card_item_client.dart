@@ -1,4 +1,5 @@
 import 'package:app_academia/models/client.dart';
+import 'package:app_academia/utils/app_routes.dart';
 import 'package:flutter/material.dart';
 
 class CardItemCLient extends StatelessWidget {
@@ -15,45 +16,53 @@ class CardItemCLient extends StatelessWidget {
   Widget build(BuildContext context) {
   double mediaQuery = MediaQuery.sizeOf(context).width;
 
-    return Container(
-      margin: EdgeInsets.only(bottom: 2.5, top: 2.5),
-      decoration: BoxDecoration(
-        color: const Color.fromARGB(228, 255, 255, 255),
-        borderRadius: BorderRadius.circular(2)        
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: 
-          mediaQuery < 500
-          ? [
-            SizedBox(width: 180, child: Text(client.name)),
-            SizedBox(width: 70, child: Text(client.plano)),
-            SizedBox(
-              width: 70, 
-              child: Text(
-                client.status,
-                style: TextStyle(
-                  color: colorStatus
-                )
-              ),
-            ),
-          ]
-          : [
-            SizedBox(width: 80, child: Text(client.id)),
-            SizedBox(width: mediaQuery * .25, child: Text(client.name.toUpperCase())),
-            SizedBox(width: 70, child: Text(client.plano)),
-            SizedBox(
-              width: 70, 
-              child: Text(
-                client.status,
-                style: TextStyle(
-                  color: colorStatus
+    return InkWell(
+      onTap: () {
+        Navigator.of(context).pushNamed(
+          AppRoutes.CLIENT_DETAIL,
+          arguments: client
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 2.5, top: 2.5),
+        decoration: BoxDecoration(
+          color: const Color.fromARGB(228, 255, 255, 255),
+          borderRadius: BorderRadius.circular(2)        
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: 
+            mediaQuery < 500
+            ? [
+              SizedBox(width: mediaQuery * .33, child: Text(client.name)),
+              SizedBox(width: 70, child: Text(client.plano)),
+              SizedBox(
+                width: 70, 
+                child: Text(
+                  client.status,
+                  style: TextStyle(
+                    color: colorStatus
+                  )
                 ),
               ),
-            ),
-          ],
+            ]
+            : [
+              SizedBox(width: 80, child: Text(client.id)),
+              SizedBox(width: mediaQuery * .25, child: Text(client.name.toUpperCase())),
+              SizedBox(width: 70, child: Text(client.plano)),
+              SizedBox(
+                width: 70, 
+                child: Text(
+                  client.status,
+                  style: TextStyle(
+                    color: colorStatus
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

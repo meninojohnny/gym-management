@@ -24,6 +24,7 @@ class _ClientScreenState extends State<ClientScreen> {
   late int totalAlunos;
   late int totalAlunosAtivos;
   late int totalAlunosPendentes;
+  bool searching = false;
 
   void renderView() {
     setState(() {
@@ -46,6 +47,15 @@ class _ClientScreenState extends State<ClientScreen> {
         backgroundColor: Theme.of(context).primaryColor,
         title: CustomAppBar(title: 'Tela de clientes'),
         actions: [
+          IconButton(
+            onPressed: () {
+              setState(() {
+                provider.searching = !provider.searching;
+                searching = !searching;
+              });
+            }, 
+            icon: Icon(searching ? Icons.search_off : Icons.search),
+          ),
           PopupMenuButton(itemBuilder: (_) => const [
             PopupMenuItem(
               value: FilterAlunos.pendentes,
@@ -68,7 +78,6 @@ class _ClientScreenState extends State<ClientScreen> {
             } else {
               provider.showAll();
             }
-            renderView();
           },
         )
         ],
@@ -102,11 +111,36 @@ class _ClientScreenState extends State<ClientScreen> {
                       ],
                     ),
                   ),
-                  ElevatedButton(
+
+                  MediaQuery.sizeOf(context).width < 500 
+                  ? ElevatedButton.icon(
+                    onPressed: () {}, 
+                    icon: const Icon(Icons.person_add),
+                    label: const Text('Add'),
+                  )
+                  : ElevatedButton(
                     onPressed: () {}, 
                     child: const Text('Adicionar cliente', style: TextStyle(color: Colors.black),))
                 ],
-              ),             
+              ),
+              if (searching)
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5),
+                  color: const Color.fromARGB(255, 226, 223, 223),
+                ),
+                child: TextField(
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    hintText: 'Ex: Joao Silva'
+                  ),
+                  onChanged: (String value) {
+                    provider.getValueSearch(value);
+                  },
+                ),
+              ),
               const CardLabel(),
               SizedBox(
                 child: ClientItemList(clients: clients),
