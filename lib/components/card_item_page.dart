@@ -9,7 +9,7 @@ class CardItemPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Navigator.of(context).pushNamed(route);
+        Navigator.of(context).pushReplacementNamed(route);
       },
       child: Card(
         elevation: 5,

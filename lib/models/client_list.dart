@@ -25,18 +25,21 @@ class ClientList with ChangeNotifier {
   void showPendentesOnly() {
     _showPendentesOnly = true;
     _showAtivosOnly = false;
+    searching = false;
     notifyListeners();
   }
 
   void showAll() {
     _showPendentesOnly = false;
     _showAtivosOnly = false;
+    searching = false;
     notifyListeners();
   }
 
   void showAtivosOnly() {
     _showPendentesOnly = false;
     _showAtivosOnly = true;
+    searching = false;
     notifyListeners();
   }
 
@@ -58,10 +61,18 @@ class ClientList with ChangeNotifier {
   
   void addClient(Client client) {
     _clients.add(client);
+    notifyListeners();
   }
 
   void removeClient(Client client) {
     _clients.remove(client);
+    notifyListeners();
+  }
+
+  void updateClient(Client oldClient, Client newClient) {
+    int index = _clients.indexOf(oldClient);
+    _clients.remove(oldClient);
+    _clients.insert(index, newClient);
     notifyListeners();
   }
 

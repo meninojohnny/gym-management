@@ -5,6 +5,8 @@ import 'package:app_academia/components/custom_app_bar.dart';
 import 'package:app_academia/models/client_list.dart';
 import 'package:app_academia/screens/client_detail_page.dart';
 import 'package:app_academia/screens/client_screen.dart';
+import 'package:app_academia/screens/form_edit_client.dart';
+import 'package:app_academia/screens/form_register_client_page.dart';
 import 'package:app_academia/utils/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -31,7 +33,10 @@ class MyApp extends StatelessWidget {
         routes: {
           AppRoutes.HOME_PAGE: (_) => const HomePage(),
           AppRoutes.CLIENT_SCREEN: (_) => const ClientScreen(),
-          AppRoutes.CLIENT_DETAIL: (_) => ClientDetailPage()
+          AppRoutes.CLIENT_DETAIL: (_) => const ClientDetailPage(),
+          AppRoutes.FORM_REGISTER_CLIENT: (_) => const FormRegisterClientPage(),
+          AppRoutes.FORM_EDIT_CLIENT: (_) => const FormEditClientPage(),
+
         },
       ),
     );
@@ -71,7 +76,7 @@ class HomePage extends StatelessWidget {
                 CardItemPage(
                   icon: Icons.payment,
                   title: 'Pagamentos', 
-                  route: AppRoutes.HOME_PAGE,
+                  route: '',
                 ),
               ],
             ),

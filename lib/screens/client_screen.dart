@@ -3,6 +3,7 @@ import 'package:app_academia/components/client_item_list.dart';
 import 'package:app_academia/components/custom_app_bar.dart';
 import 'package:app_academia/models/client.dart';
 import 'package:app_academia/models/client_list.dart';
+import 'package:app_academia/utils/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -24,7 +25,7 @@ class _ClientScreenState extends State<ClientScreen> {
   late int totalAlunos;
   late int totalAlunosAtivos;
   late int totalAlunosPendentes;
-  bool searching = false;
+  late bool searching;
 
   void renderView() {
     setState(() {
@@ -40,12 +41,20 @@ class _ClientScreenState extends State<ClientScreen> {
     totalAlunos = provider.totalClients;
     totalAlunosAtivos = provider.totalClientsAtivos;
     totalAlunosPendentes = provider.totalClientsPendents;
+    searching = provider.searching;
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 158, 159, 157),
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
         title: CustomAppBar(title: 'Tela de clientes'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pushReplacementNamed(AppRoutes.HOME_PAGE);
+            provider.showAll();
+          },
+        ),
         actions: [
           IconButton(
             onPressed: () {
@@ -113,13 +122,23 @@ class _ClientScreenState extends State<ClientScreen> {
                   ),
 
                   MediaQuery.sizeOf(context).width < 500 
-                  ? ElevatedButton.icon(
-                    onPressed: () {}, 
-                    icon: const Icon(Icons.person_add),
-                    label: const Text('Add'),
+                  ? Container(
+                    decoration: const BoxDecoration(
+                      color: Color.fromARGB(228, 255, 255, 255),
+                      shape: BoxShape.circle
+                    ),
+                    child: IconButton(
+                      color: Color.fromARGB(255, 30, 29, 29),
+                      onPressed: () {
+                        Navigator.of(context).pushReplacementNamed(AppRoutes.FORM_REGISTER_CLIENT);
+                      }, 
+                      icon: const Icon(Icons.person_add)
+                    ),
                   )
                   : ElevatedButton(
-                    onPressed: () {}, 
+                    onPressed: () {
+                      Navigator.of(context).pushReplacementNamed(AppRoutes.FORM_REGISTER_CLIENT);
+                    }, 
                     child: const Text('Adicionar cliente', style: TextStyle(color: Colors.black),))
                 ],
               ),

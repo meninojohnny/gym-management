@@ -1,6 +1,7 @@
 import 'package:app_academia/components/row_info.dart';
 import 'package:app_academia/models/client.dart';
 import 'package:app_academia/models/client_list.dart';
+import 'package:app_academia/utils/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -18,16 +19,25 @@ class ClientDetailPage extends StatelessWidget {
         backgroundColor: Theme.of(context).primaryColor,
         title: Container(alignment: Alignment.center,
           child: Text(
-            client.name, 
+            client.name.toUpperCase(), 
             style: const TextStyle(color: Colors.white),
           ),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pushReplacementNamed(AppRoutes.CLIENT_SCREEN);
+          },
         ),
         actions: [
           PopupMenuButton(
             itemBuilder: (_) => [
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 0,
-                child: Row(
+                onTap: () {
+                  Navigator.of(context).pushNamed(AppRoutes.FORM_EDIT_CLIENT, arguments: client);
+                },
+                child: const Row(
                   children: [
                     Icon(Icons.edit),
                     SizedBox(width: 5,),
