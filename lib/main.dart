@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
         routes: {
           AppRoutes.HOME_PAGE: (_) => const HomePage(),
           AppRoutes.CLIENT_SCREEN: (_) => const ClientScreen(),
-          AppRoutes.CLIENT_DETAIL: (_) => const ClientDetailPage(),
+          AppRoutes.CLIENT_DETAIL: (_) => ClientDetailPage(),
           AppRoutes.FORM_REGISTER_CLIENT: (_) => const FormRegisterClientPage(),
           AppRoutes.FORM_EDIT_CLIENT: (_) => const FormEditClientPage(),
 
@@ -49,6 +49,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<ClientList>(context);
+    provider.verifyStatusClient();
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 158, 159, 157),
       appBar: AppBar(

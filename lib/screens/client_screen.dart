@@ -51,7 +51,7 @@ class _ClientScreenState extends State<ClientScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.of(context).pushReplacementNamed(AppRoutes.HOME_PAGE);
+            Navigator.of(context).pop();
             provider.showAll();
           },
         ),

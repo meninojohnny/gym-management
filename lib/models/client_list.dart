@@ -1,6 +1,8 @@
+import 'dart:math';
 import 'package:app_academia/data/bd_clients.dart';
 import 'package:app_academia/models/client.dart';
 import 'package:flutter/material.dart';
+import 'package:jiffy/jiffy.dart';
 
 class ClientList with ChangeNotifier {
   final List<Client> _clients = DUMMY_CLIENTS;
@@ -59,8 +61,25 @@ class ClientList with ChangeNotifier {
     return totalClients - totalClientsPendents;
   }
   
-  void addClient(Client client) {
-    _clients.add(client);
+  void addClient(Map data) {
+    bool hasId = data['id'] != null;
+    Client client = Client(
+      id: hasId ? data['id'] : (Random().nextInt(2000) + 1000).toString(), 
+      name: data['nome'], 
+      genero: data['genero'], 
+      plano: data['plano'], 
+      status: 'Ativo', 
+      dateInit: data['dataIni'], 
+      dateEnd: data['dataFim'],
+    );
+
+    print(client.dateInit);
+
+    if (hasId) {
+      updateClient(client);
+    } else {
+      _clients.add(client);
+    }
     notifyListeners();
   }
 
@@ -69,20 +88,33 @@ class ClientList with ChangeNotifier {
     notifyListeners();
   }
 
-  void updateClient(Client oldClient, Client newClient) {
-    int index = _clients.indexOf(oldClient);
-    _clients.remove(oldClient);
-    _clients.insert(index, newClient);
+  void updateClient(Client client) {
+    int index = _clients.indexWhere((Client e) => e.id == client.id);
+    _clients[index] = client;
     notifyListeners();
   }
 
   void toggleStatus(Client client) {
     client.status = 'Ativo';
+    DateTime current = DateTime.now();
+    client.dateInit = current;
+    client.dateEnd = Jiffy(current).add(months: 1).dateTime;
     notifyListeners();
   }
 
   void getValueSearch(String value) {
     valueSearch = value;
     notifyListeners();
+  }
+
+  void verifyStatusClient() {
+    DateTime current = DateTime.now();
+    for (final client in _clients) {
+      if (!client.dateEnd.isAfter(current)) {
+        client.status = 'Pendente';
+      } else {
+        client.status = 'Ativo';
+      }
+    }
   }
 }

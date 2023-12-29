@@ -3,16 +3,22 @@ import 'package:app_academia/models/client.dart';
 import 'package:app_academia/models/client_list.dart';
 import 'package:app_academia/utils/app_routes.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class ClientDetailPage extends StatelessWidget {
-   const ClientDetailPage({super.key});
+  const ClientDetailPage({super.key});
+
+  Client clientDetatil(clients, clientArgs) {
+    int index = clients.indexWhere((Client e) => e.id == clientArgs.id);
+    return clients[index];
+  } 
 
   @override
   Widget build(BuildContext context) {
-    Client client = ModalRoute.of(context)!.settings.arguments as Client;
-    // Client client = DUMMY_CLIENTS[0];
+    Client clientArgs = ModalRoute.of(context)!.settings.arguments as Client;
     final provider = Provider.of<ClientList>(context);
+    Client client = clientDetatil(provider.clients, clientArgs);
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 158, 159, 157),
       appBar: AppBar(
@@ -26,7 +32,7 @@ class ClientDetailPage extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.of(context).pushReplacementNamed(AppRoutes.CLIENT_SCREEN);
+            Navigator.of(context).pop();
           },
         ),
         actions: [
@@ -35,7 +41,10 @@ class ClientDetailPage extends StatelessWidget {
               PopupMenuItem(
                 value: 0,
                 onTap: () {
-                  Navigator.of(context).pushNamed(AppRoutes.FORM_EDIT_CLIENT, arguments: client);
+                  Navigator.of(context).pushNamed(
+                    AppRoutes.FORM_EDIT_CLIENT, 
+                    arguments: client,
+                  );
                 },
                 child: const Row(
                   children: [
@@ -58,8 +67,30 @@ class ClientDetailPage extends StatelessWidget {
             ],
             onSelected: (value) {
               if (value == 1) {
-                provider.removeClient(client);
-                Navigator.pop(context);
+                showDialog(
+                  context: context, 
+                  builder: (_) {
+                    return AlertDialog(
+                      content: Text(
+                        'Deseja excluir ${client.name}?',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          }, 
+                          child: const Text('Não'),
+                        ),
+                        TextButton(onPressed: () {
+                          provider.removeClient(client);
+                          Navigator.pop(context);
+                          Navigator.pop(context);
+                        }, child: const Text('Sim')),
+                      ],
+                    );
+                  },
+                );
               }
             },
           ),
@@ -116,9 +147,9 @@ class ClientDetailPage extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 5,),
-              RowInfo(label: 'Data de inicio:', info: client.dateInit),
+              RowInfo(label: 'Data de inicio:', info: DateFormat('dd/MM/yyy').format(client.dateInit).toString()),
               const SizedBox(height: 5,),
-              RowInfo(label: 'Validade:', info: client.dateEnd),
+              RowInfo(label: 'Validade:', info: DateFormat('dd/MM/yyy').format(client.dateEnd)),
             ],
           ),
         ),

@@ -4,8 +4,8 @@ class Client {
   final String genero;
   final String plano;
   String status;
-  final String dateInit;
-  final String dateEnd;
+  DateTime dateInit;
+  DateTime dateEnd;
 
   Client({
     required this.id, 

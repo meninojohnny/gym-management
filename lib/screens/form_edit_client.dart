@@ -1,9 +1,11 @@
+import 'package:app_academia/components/input_label.dart';
 import 'package:app_academia/components/input_radio.dart';
 import 'package:app_academia/components/input_text.dart';
 import 'package:app_academia/models/client.dart';
 import 'package:app_academia/models/client_list.dart';
-import 'package:app_academia/utils/app_routes.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:jiffy/jiffy.dart';
 import 'package:provider/provider.dart';
 
 class FormEditClientPage extends StatefulWidget {
@@ -18,17 +20,15 @@ class _FormEditClientPage extends State<FormEditClientPage> {
   List generos = ['Masculino', 'Feminino', 'Outro'];
   late Client client;
 
-  @override
-  void initState() {
-    super.initState();
-    
-  }
+  final Map<String, Object> _formData = {};
 
   TextEditingController nomeController = TextEditingController();
   TextEditingController dataIni = TextEditingController();
   TextEditingController dataFim = TextEditingController();
   String genderSelected = '';
   String planSelected = '';
+  DateTime? dateInit;
+  DateTime? dateEnd;
 
   void setGenderSelected(String value) {
     genderSelected = value;
@@ -43,8 +43,10 @@ class _FormEditClientPage extends State<FormEditClientPage> {
     final provider = Provider.of<ClientList>(context);
     client = ModalRoute.of(context)!.settings.arguments as Client;
     nomeController.text = client.name;
-    dataIni.text = client.dateInit;
-    dataFim.text = client.dateEnd;
+    dateInit = client.dateInit;
+    dateEnd = client.dateEnd;
+    planSelected = client.plano;
+    genderSelected = client.genero;
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 158, 159, 157),
       appBar: AppBar(
@@ -96,16 +98,82 @@ class _FormEditClientPage extends State<FormEditClientPage> {
                   onChanged: setPlanSelected,
                 ),
                 const SizedBox(height: 15,),
-                InputText(
-                  label: 'Inicio do Plano:', 
-                  hinText: dataIni.text,
-                  controller: dataIni,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const InputLabel('Inicio do Plano:'),
+                    const SizedBox(height: 5,),
+                    InkWell(
+                      onTap: () {
+                        showDatePicker(
+                          context: context, 
+                          firstDate: DateTime(2020), 
+                          lastDate: DateTime.now(),
+                        ).then((value) {   
+                          dateInit = value;
+                          dateEnd = (Jiffy(dateInit).add(months: 1)).dateTime;                   
+                        });
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        height: 50,
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 220, 219, 219),
+                          borderRadius: BorderRadius.circular(5)
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.calendar_month),
+                            const SizedBox(width: 5,),
+                            Text(
+                              dateInit == null 
+                              ? 'Ex: 10/12/2023'
+                              : DateFormat('dd/MM/yyyy').format(dateInit!),
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w200,
+                                color: Color.fromARGB(255, 99, 98, 98)
+                              ),
+                            )              
+                          ],
+                        ),
+                      ),
+                    )
+                  ],
                 ),
                 const SizedBox(height: 15,),
-                InputText(
-                  label: 'válido até:', 
-                  hinText: dataFim.text,
-                  controller: dataFim,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const InputLabel('Válido até:'),
+                    const SizedBox(height: 5,),
+                    Container(
+                      width: double.infinity,
+                      height: 50,
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      decoration: BoxDecoration(
+                        color: const Color.fromARGB(255, 220, 219, 219),
+                        borderRadius: BorderRadius.circular(5)
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.calendar_month),
+                          const SizedBox(width: 5,),
+                          Text(
+                            dateEnd == null 
+                            ? 'Ex: 10/01/2024'
+                            : DateFormat('dd/MM/yyyy').format(dateEnd!),
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w200,
+                              color: Color.fromARGB(255, 99, 98, 98)
+                            ),
+                          )  
+                        ],
+                      ),
+                    )
+                  ],
                 ),
                 const SizedBox(height: 15,),
                 Row(
@@ -113,16 +181,14 @@ class _FormEditClientPage extends State<FormEditClientPage> {
                   children: [
                     ElevatedButton(
                       onPressed: () {
-                        provider.updateClient(client, Client(
-                          id: client.id, 
-                          name: nomeController.text, 
-                          genero: genderSelected != '' ? genderSelected : client.genero, 
-                          plano: planSelected != '' ? planSelected : client.plano, 
-                          status: client.status, 
-                          dateInit: dataIni.text, 
-                          dateEnd: dataFim.text,
-                        ));
-                        Navigator.of(context).pushNamed(AppRoutes.CLIENT_SCREEN);
+                        _formData['id'] = client.id;
+                        _formData['nome'] = nomeController.text;
+                        _formData['dataFim'] = dateEnd!;
+                        _formData['dataIni'] = dateInit!;
+                        _formData['genero'] = genderSelected;
+                        _formData['plano'] = planSelected;
+                        provider.addClient(_formData);
+                        Navigator.of(context).pop();
                       }, 
                       child: const Text('Atualizar'),
                     ),

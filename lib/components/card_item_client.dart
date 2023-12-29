@@ -18,7 +18,7 @@ class CardItemCLient extends StatelessWidget {
 
     return InkWell(
       onTap: () {
-        Navigator.of(context).pushReplacementNamed(
+        Navigator.of(context).pushNamed(
           AppRoutes.CLIENT_DETAIL,
           arguments: client
         );
