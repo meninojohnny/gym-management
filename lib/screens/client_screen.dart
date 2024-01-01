@@ -26,10 +26,20 @@ class _ClientScreenState extends State<ClientScreen> {
   late int totalAlunosAtivos;
   late int totalAlunosPendentes;
   late bool searching;
+  bool isLoading = true;
 
   void renderView() {
-    setState(() {
-      
+    setState(() {  
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    Provider.of<ClientList>(context, listen: false).loadClients().then((value) {
+      setState(() {
+        isLoading = false;
+      });
     });
   }
 
@@ -51,7 +61,7 @@ class _ClientScreenState extends State<ClientScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.of(context).pop();
+            Navigator.of(context).pushReplacementNamed(AppRoutes.HOME_PAGE);
             provider.showAll();
           },
         ),
@@ -91,7 +101,7 @@ class _ClientScreenState extends State<ClientScreen> {
         )
         ],
       ),
-      body: Padding(
+      body: isLoading ? Center(child: CircularProgressIndicator(),) : Padding(
         padding: const EdgeInsets.all(10.0),
         child: SingleChildScrollView(
           child: Column(
@@ -128,7 +138,7 @@ class _ClientScreenState extends State<ClientScreen> {
                       shape: BoxShape.circle
                     ),
                     child: IconButton(
-                      color: Color.fromARGB(255, 30, 29, 29),
+                      color: const Color.fromARGB(255, 30, 29, 29),
                       onPressed: () {
                         Navigator.of(context).pushReplacementNamed(AppRoutes.FORM_REGISTER_CLIENT);
                       }, 
@@ -137,7 +147,7 @@ class _ClientScreenState extends State<ClientScreen> {
                   )
                   : ElevatedButton(
                     onPressed: () {
-                      Navigator.of(context).pushReplacementNamed(AppRoutes.FORM_REGISTER_CLIENT);
+                      Navigator.of(context).pushNamed(AppRoutes.FORM_REGISTER_CLIENT);
                     }, 
                     child: const Text('Adicionar cliente', style: TextStyle(color: Colors.black),))
                 ],

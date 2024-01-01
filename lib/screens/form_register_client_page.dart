@@ -1,3 +1,4 @@
+import 'package:app_academia/components/input_data.dart';
 import 'package:app_academia/components/input_label.dart';
 import 'package:app_academia/components/input_radio.dart';
 import 'package:app_academia/components/input_text.dart';
@@ -21,8 +22,8 @@ class _FormRegisterClientPageState extends State<FormRegisterClientPage> {
   final Map<String,Object> _formData = {};
 
   TextEditingController nomeController = TextEditingController();
-  String? genderSelected;
-  String? planSelected;
+  String genderSelected = '';
+  String planSelected = '';
   DateTime? dateInit;
   DateTime? dateEnd;
 
@@ -32,6 +33,26 @@ class _FormRegisterClientPageState extends State<FormRegisterClientPage> {
 
   void setPlanSelected(String value) {
     planSelected = value;
+    replaceDate();
+    setState(() {});
+  }
+
+  void replaceDate() {
+    if(dateEnd != null) {
+      if (planSelected == 'Semanal') {
+        dateEnd = Jiffy.parseFromDateTime(dateInit!).add(days: 7).dateTime;
+      } else {
+        dateEnd = Jiffy.parseFromDateTime(dateInit!).add(months: 1).dateTime;
+      }
+    }
+  }
+
+   void setDateInit(DateTime value) {
+    dateInit = value;
+  }
+
+  void setDateEnd(DateTime value) {
+    dateEnd = value;
   }
 
   @override
@@ -51,7 +72,7 @@ class _FormRegisterClientPageState extends State<FormRegisterClientPage> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.of(context).pop();
+            Navigator.of(context).pushReplacementNamed(AppRoutes.CLIENT_SCREEN);
             provider.showAll();
           },
         ),
@@ -70,104 +91,31 @@ class _FormRegisterClientPageState extends State<FormRegisterClientPage> {
               children: [                                  
                 InputText(
                   label: 'Nome:', 
-                  hinText: 'Ex: Joao Vitor Silva',
+                  hinText: 'Ex: Joao Silva',
                   controller: nomeController,
                 ),
                 const SizedBox(height: 15,),
                 InputRadio(
-                  label: 'Gênero:', 
+                  label: 'Gênero:',
+                  valueSelected: genderSelected,
                   listValues: generos,
                   onChanged: setGenderSelected,
                 ),
                 const SizedBox(height: 15,),
                 InputRadio(
-                  label: 'Plano:', 
+                  label: 'Plano:',
+                  valueSelected: planSelected,
                   listValues: planos,
                   onChanged: setPlanSelected,
                 ),
                 const SizedBox(height: 15,),
-                const SizedBox(height: 15,),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const InputLabel('Inicio do Plano:'),
-                    const SizedBox(height: 5,),
-                    InkWell(
-                      onTap: () {
-                        showDatePicker(
-                          context: context, 
-                          firstDate: DateTime(2020), 
-                          lastDate: DateTime.now(),
-                        ).then((value) {
-                          setState(() {
-                            dateInit = value;
-                            dateEnd = (Jiffy(dateInit).add(months: 1)).dateTime;
-                          });
-                        });
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        height: 50,
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 220, 219, 219),
-                          borderRadius: BorderRadius.circular(5)
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.calendar_month),
-                            const SizedBox(width: 5,),
-                            Text(
-                              dateInit == null 
-                              ? 'Ex: 10/12/2023'
-                              : DateFormat('dd/MM/yyyy').format(dateInit!),
-                              style: const TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w200,
-                                color: Color.fromARGB(255, 99, 98, 98)
-                              ),
-                            )
-                            
-                          ],
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-                const SizedBox(height: 15,),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const InputLabel('Válido até:'),
-                    const SizedBox(height: 5,),
-                    Container(
-                      width: double.infinity,
-                      height: 50,
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 220, 219, 219),
-                        borderRadius: BorderRadius.circular(5)
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.calendar_month),
-                          const SizedBox(width: 5,),
-                          Text(
-                            dateEnd == null 
-                            ? 'Ex: 10/01/2024'
-                            : DateFormat('dd/MM/yyyy').format(dateEnd!),
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w200,
-                              color: Color.fromARGB(255, 99, 98, 98)
-                            ),
-                          )
-                          
-                        ],
-                      ),
-                    )
-                  ],
-                ),
+                Inputdata(
+                  plan: planSelected,
+                  dateInit: dateInit,
+                  dateEnd: dateEnd,
+                  setdateInit: setDateInit,
+                  setDateEnd: setDateEnd,
+                ),    
                 const SizedBox(height: 15,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -175,10 +123,11 @@ class _FormRegisterClientPageState extends State<FormRegisterClientPage> {
                     ElevatedButton(
                       onPressed: () {
                         _formData['nome'] = nomeController.text;
-                        _formData['dataFim'] = dateEnd!;
-                        _formData['dataIni'] = dateInit!;
-                        _formData['genero'] = genderSelected!;
-                        _formData['plano'] = planSelected!;
+                        _formData['dataEnd'] = dateEnd!.toIso8601String();
+                        _formData['status'] = 'Ativo';
+                        _formData['dataIni'] = dateInit!.toIso8601String();
+                        _formData['genero'] = genderSelected;
+                        _formData['plano'] = planSelected;
                         provider.addClient(_formData);
                         Navigator.of(context).pushReplacementNamed(AppRoutes.CLIENT_SCREEN);
                       }, 

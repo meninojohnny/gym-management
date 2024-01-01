@@ -1,27 +1,76 @@
+import 'dart:convert';
 import 'dart:math';
-import 'package:app_academia/data/bd_clients.dart';
 import 'package:app_academia/models/client.dart';
+import 'package:app_academia/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:jiffy/jiffy.dart';
+import 'package:http/http.dart' as http;
 
 class ClientList with ChangeNotifier {
-  final List<Client> _clients = DUMMY_CLIENTS;
+  final List<Client> _clients = [];
   bool _showPendentesOnly = false;
   bool _showAtivosOnly = false;
   bool searching = false;
   String valueSearch = '';
+  Client _clientSelected = Client(
+    id: '', 
+    matricula: '', 
+    name: '', 
+    genero: '', 
+    plano: '', 
+    status: '', 
+    dateInit: DateTime(1000), 
+    dateEnd: DateTime(1000),
+  );
+  
+  Future<void> setClientSelected(String clientId) async {
+    await http.patch(
+      Uri.parse('${Constants.CLIENT_SELECTED_URL}.json'),
+      body: jsonEncode({'clientSelectedId': clientId})
+    );
+  }
+
+  get clientSelected => _clientSelected;
+  
+  Future<void> loadClientSelected() async {
+    final response = await http.get(Uri.parse('${Constants.CLIENT_SELECTED_URL}.json'));
+    String clientSelectedI = jsonDecode(response.body)['clientSelectedId'];
+    for (final client in _clients) {
+      if (client.id == clientSelectedI) {
+        _clientSelected = client;
+      }
+    }
+    notifyListeners();
+  }
 
   List<Client> get clients {
     if (searching) {
-      return _clients.where((client) {
+      return sortClients(_clients.where((client) {
         return client.name.toUpperCase().contains(valueSearch.toUpperCase());
-      }).toList();
+      }).toList());
     } else if (_showPendentesOnly) {
-      return _clients.where((client) => client.status == 'Pendente').toList();
+      return sortClients(_clients.where((client) => client.status == 'Pendente').toList());
     } else if (_showAtivosOnly) {
-      return _clients.where((client) => client.status == 'Ativo').toList();
+      return sortClients(_clients.where((client) => client.status == 'Ativo').toList());
     }
-    return _clients;
+    return sortClients(_clients);
+  }
+
+  List<Client> sortClients(List clients) {
+    List<String> listNameClients = [];
+    for(final client in clients) {
+      listNameClients.add(client.name);
+    }
+    listNameClients.sort();
+    List<Client> newListClients = [];
+    for (final clientName in listNameClients) {
+      for(final client in clients) {
+        if (client.name == clientName) {
+          newListClients.add(client);
+        }
+      }
+    }
+    return newListClients;
   }
     
   void showPendentesOnly() {
@@ -45,60 +94,95 @@ class ClientList with ChangeNotifier {
     notifyListeners();
   }
 
-  List<Client> get clientsPendentes {
-    return _clients.where((client) => client.status == 'Pendente').toList();
-  }
+  List<Client> get clientsPendentes => _clients.where((client) => client.status == 'Pendente').toList();
 
-  int get totalClients {
-    return _clients.length;
-  }
-
-  int get totalClientsPendents {
-    return clientsPendentes.length;
-  }
-
-  int get totalClientsAtivos {
-    return totalClients - totalClientsPendents;
-  }
+  int get totalClients => _clients.length;
   
-  void addClient(Map data) {
-    bool hasId = data['id'] != null;
+  int get totalClientsPendents => clientsPendentes.length;
+
+  int get totalClientsAtivos => totalClients - totalClientsPendents;
+  
+  Future<void> addClient(Map data) async {
+    String matricula = (Random().nextInt(2000) + 1000).toString();
+    final response = await http.post(
+      Uri.parse('${Constants.CLIENT_BASE_URL}.json'),
+      body: jsonEncode({
+        'matricula': matricula,
+        'nome': data['nome'],
+        'genero': data['genero'],
+        'plano': data['plano'],
+        'status': data['status'],
+        'dataInit': data['dataIni'],
+        'dataEnd': data['dataEnd'],
+      })
+    );
+    final id = jsonDecode(response.body)['name'];
     Client client = Client(
-      id: hasId ? data['id'] : (Random().nextInt(2000) + 1000).toString(), 
+      id: id,
+      matricula: matricula, 
       name: data['nome'], 
       genero: data['genero'], 
       plano: data['plano'], 
-      status: 'Ativo', 
-      dateInit: data['dataIni'], 
-      dateEnd: data['dataFim'],
+      status: data['status'], 
+      dateInit: DateTime.parse(data['dataIni']), 
+      dateEnd: DateTime.parse(data['dataEnd']),
     );
+  }
 
-    print(client.dateInit);
-
-    if (hasId) {
-      updateClient(client);
-    } else {
-      _clients.add(client);
-    }
+  Future<void> updateClient(Client client) async {
+    await http.patch(
+      Uri.parse('${Constants.CLIENT_BASE_URL}/${client.id}.json'),
+      body: jsonEncode({
+        'matricula': client.matricula,
+        'nome': client.name,
+        'genero': client.genero,
+        'plano': client.plano,
+        'status': client.status,
+        'dataInit': client.dateInit.toIso8601String(),
+        'dataEnd': client.dateEnd.toIso8601String(),
+      })
+    );
     notifyListeners();
   }
 
-  void removeClient(Client client) {
+  Future<void> loadClients() async {
+    _clients.clear();
+    final response = await http.get(Uri.parse('${Constants.CLIENT_BASE_URL}.json'));
+    Map<String, dynamic> data = jsonDecode(response.body);
+    data.forEach((clientId, clientData) {
+      _clients.add(Client(
+        id: clientId, 
+        matricula: clientData['matricula'], 
+        name: clientData['nome'], 
+        genero: clientData['genero'], 
+        plano: clientData['plano'], 
+        status: clientData['status'], 
+        dateInit: DateTime.parse(clientData['dataInit']), 
+        dateEnd: DateTime.parse(clientData['dataEnd']),
+      ));
+    });
+    notifyListeners();
+  }
+
+  Future<void> removeClient(Client client) async {
+    await http.delete(Uri.parse('${Constants.CLIENT_BASE_URL}/${client.id}.json'));
     _clients.remove(client);
     notifyListeners();
   }
 
-  void updateClient(Client client) {
-    int index = _clients.indexWhere((Client e) => e.id == client.id);
-    _clients[index] = client;
-    notifyListeners();
-  }
-
   void toggleStatus(Client client) {
-    client.status = 'Ativo';
     DateTime current = DateTime.now();
-    client.dateInit = current;
-    client.dateEnd = Jiffy(current).add(months: 1).dateTime;
+    Client newClient = Client(
+      id: client.id,
+      matricula: client.matricula,
+      name: client.name, 
+      genero: client.genero, 
+      plano: client.plano, 
+      status: 'Ativo', 
+      dateInit: current, 
+      dateEnd: Jiffy.parseFromDateTime(current).add(months: 1).dateTime,
+    );
+    updateClient(newClient);
     notifyListeners();
   }
 
@@ -111,9 +195,29 @@ class ClientList with ChangeNotifier {
     DateTime current = DateTime.now();
     for (final client in _clients) {
       if (!client.dateEnd.isAfter(current)) {
-        client.status = 'Pendente';
+        Client newClient = Client(
+          id: client.id,
+          matricula: client.matricula,
+          name: client.name, 
+          genero: client.genero, 
+          plano: client.plano, 
+          status: 'Pendente', 
+          dateInit: client.dateInit, 
+          dateEnd: client.dateEnd,
+        );
+        updateClient(newClient);
       } else {
-        client.status = 'Ativo';
+        Client newClient = Client(
+          id: client.id, 
+          matricula: client.matricula,
+          name: client.name, 
+          genero: client.genero, 
+          plano: client.plano, 
+          status: 'Ativo', 
+          dateInit: client.dateInit, 
+          dateEnd: client.dateEnd,
+        );
+        updateClient(newClient);
       }
     }
   }

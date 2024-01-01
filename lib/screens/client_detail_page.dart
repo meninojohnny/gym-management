@@ -1,25 +1,42 @@
 import 'package:app_academia/components/row_info.dart';
 import 'package:app_academia/models/client.dart';
 import 'package:app_academia/models/client_list.dart';
+import 'package:app_academia/screens/form_edit_client.dart';
 import 'package:app_academia/utils/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-class ClientDetailPage extends StatelessWidget {
+class ClientDetailPage extends StatefulWidget {
   const ClientDetailPage({super.key});
 
-  Client clientDetatil(clients, clientArgs) {
-    int index = clients.indexWhere((Client e) => e.id == clientArgs.id);
-    return clients[index];
-  } 
+  @override
+  State<ClientDetailPage> createState() => _ClientDetailPageState();
+}
+
+class _ClientDetailPageState extends State<ClientDetailPage> {
+  late Client client;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    Provider.of<ClientList>(context, listen: false).loadClients().then((value) {
+      Provider.of<ClientList>(context, listen: false).loadClientSelected().then((value) {
+        setState(() {
+          isLoading = false;
+        });
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    Client clientArgs = ModalRoute.of(context)!.settings.arguments as Client;
     final provider = Provider.of<ClientList>(context);
-    Client client = clientDetatil(provider.clients, clientArgs);
-    return Scaffold(
+    client = provider.clientSelected;
+
+    return isLoading ? const Center(child: CircularProgressIndicator(),) : 
+    Scaffold(
       backgroundColor: const Color.fromARGB(255, 158, 159, 157),
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
@@ -32,7 +49,7 @@ class ClientDetailPage extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.of(context).pop();
+            Navigator.of(context).pushReplacementNamed(AppRoutes.CLIENT_SCREEN);
           },
         ),
         actions: [
@@ -41,9 +58,8 @@ class ClientDetailPage extends StatelessWidget {
               PopupMenuItem(
                 value: 0,
                 onTap: () {
-                  Navigator.of(context).pushNamed(
-                    AppRoutes.FORM_EDIT_CLIENT, 
-                    arguments: client,
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => FormEditClientPage()),
                   );
                 },
                 child: const Row(
@@ -124,7 +140,7 @@ class ClientDetailPage extends StatelessWidget {
               const SizedBox(height: 10,),
               RowInfo(label: 'Nome:', info: client.name),
               const SizedBox(height: 5,),
-              RowInfo(label: 'Matrícula:', info: client.id),
+              RowInfo(label: 'Matrícula:', info: client.matricula),
               const SizedBox(height: 5,),
               RowInfo(label: 'Gênero:', info: client.genero),
               const SizedBox(height: 5,),

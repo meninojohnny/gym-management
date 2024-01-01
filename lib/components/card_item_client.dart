@@ -1,6 +1,8 @@
 import 'package:app_academia/models/client.dart';
+import 'package:app_academia/models/client_list.dart';
 import 'package:app_academia/utils/app_routes.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class CardItemCLient extends StatelessWidget {
 
@@ -18,7 +20,8 @@ class CardItemCLient extends StatelessWidget {
 
     return InkWell(
       onTap: () {
-        Navigator.of(context).pushNamed(
+        Provider.of<ClientList>(context, listen: false).setClientSelected(client.id);
+        Navigator.of(context).pushReplacementNamed(
           AppRoutes.CLIENT_DETAIL,
           arguments: client
         );
@@ -49,7 +52,7 @@ class CardItemCLient extends StatelessWidget {
               ),
             ]
             : [
-              SizedBox(width: 80, child: Text(client.id)),
+              SizedBox(width: 80, child: Text(client.matricula)),
               SizedBox(width: mediaQuery * .25, child: Text(client.name.toUpperCase())),
               SizedBox(width: 70, child: Text(client.plano)),
               SizedBox(

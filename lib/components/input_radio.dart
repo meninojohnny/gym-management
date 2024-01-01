@@ -6,7 +6,13 @@ class InputRadio extends StatefulWidget {
   final List listValues;
   final Function(String) onChanged;
   String valueSelected = '';
-  InputRadio({super.key, this.valueSelected = '', required this.label, required this.listValues, required this.onChanged});
+  InputRadio({
+    super.key,
+    this.valueSelected = '',
+    required this.label, 
+    required this.listValues, 
+    required this.onChanged,
+  });
 
   @override
   State<InputRadio> createState() => _InputRadioState();
