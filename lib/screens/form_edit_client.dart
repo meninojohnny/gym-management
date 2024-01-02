@@ -16,6 +16,7 @@ class FormEditClientPage extends StatefulWidget {
 
 class _FormEditClientPage extends State<FormEditClientPage> {
   bool isLoading = true;
+  bool isActionLoading = false;
   List planos = ['Mensal', 'Semanal'];
   List generos = ['Masculino', 'Feminino', 'Outro'];
   late Client client;
@@ -48,7 +49,7 @@ class _FormEditClientPage extends State<FormEditClientPage> {
   void initState() {
     super.initState();
     Provider.of<ClientList>(context, listen: false).loadClients().then((value) {
-      Provider.of<ClientList>(context, listen: false).loadClients().then((value) {
+      Provider.of<ClientList>(context, listen: false).loadClientSelected().then((value) {
         setState(() {
           isLoading = false;
         });
@@ -60,7 +61,7 @@ class _FormEditClientPage extends State<FormEditClientPage> {
   Widget build(BuildContext context) {
     final provider = Provider.of<ClientList>(context);
     client = provider.clientSelected;
-    nomeController.text = client.name;
+    nomeController.text = client.name.toLowerCase();
     dateInit = client.dateInit;
     dateEnd = client.dateEnd;
     planSelected = client.plano;
@@ -127,9 +128,9 @@ class _FormEditClientPage extends State<FormEditClientPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        
+                    isActionLoading ? const CircularProgressIndicator() : ElevatedButton(
+                      onPressed: () {          
+                        setState(() {isActionLoading = true;});
                         provider.updateClient(Client(
                           id: client.id, 
                           matricula: client.matricula, 
@@ -139,9 +140,16 @@ class _FormEditClientPage extends State<FormEditClientPage> {
                           status: client.status, 
                           dateInit: dateInit!, 
                           dateEnd: dateEnd!,
-                        ));
+                        )).then((value) {
+                          Navigator.of(context).pushReplacementNamed(AppRoutes.CLIENT_DETAIL);
+                        }).catchError((error) {
+                          setState(() {isActionLoading = false;});
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              duration: Duration(seconds: 1),
+                              content: Text('Erro ao conluir a ação. Tente novamente')));
+                        });
 
-                        Navigator.of(context).pushReplacementNamed(AppRoutes.CLIENT_DETAIL);
                       }, 
                       child: const Text('Atualizar'),
                     ),

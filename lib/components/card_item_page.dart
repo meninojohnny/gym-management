@@ -23,14 +23,16 @@ class CardItemPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 50, color:const Color.fromARGB(255, 36, 36, 36),),
+              FittedBox(child: Icon(icon, color:const Color.fromARGB(255, 36, 36, 36),)),
               const SizedBox(height: 10,),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
-                  color: Color.fromARGB(255, 36, 36, 36),
+              FittedBox(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                    color: Color.fromARGB(255, 36, 36, 36),
+                  ),
                 ),
               )
             ],

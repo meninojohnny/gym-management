@@ -40,33 +40,34 @@ class ClientList with ChangeNotifier {
         _clientSelected = client;
       }
     }
-    notifyListeners();
   }
 
   List<Client> get clients {
     if (searching) {
-      return sortClients(_clients.where((client) {
+      return _clients.where((client) {
         return client.name.toUpperCase().contains(valueSearch.toUpperCase());
-      }).toList());
+      }).toList();
     } else if (_showPendentesOnly) {
-      return sortClients(_clients.where((client) => client.status == 'Pendente').toList());
+      return _clients.where((client) => client.status == 'Pendente').toList();
     } else if (_showAtivosOnly) {
-      return sortClients(_clients.where((client) => client.status == 'Ativo').toList());
+      return _clients.where((client) => client.status == 'Ativo').toList();
     }
     return sortClients(_clients);
   }
 
   List<Client> sortClients(List clients) {
     List<String> listNameClients = [];
+    List listClientsTemp = clients.where((element) => true).toList();
     for(final client in clients) {
       listNameClients.add(client.name);
     }
     listNameClients.sort();
     List<Client> newListClients = [];
     for (final clientName in listNameClients) {
-      for(final client in clients) {
+      for(final client in listClientsTemp) {
         if (client.name == clientName) {
           newListClients.add(client);
+          listClientsTemp.remove(client);
         }
       }
     }
@@ -108,7 +109,7 @@ class ClientList with ChangeNotifier {
       Uri.parse('${Constants.CLIENT_BASE_URL}.json'),
       body: jsonEncode({
         'matricula': matricula,
-        'nome': data['nome'],
+        'nome': (data['nome'] as String).toUpperCase(),
         'genero': data['genero'],
         'plano': data['plano'],
         'status': data['status'],
@@ -116,17 +117,9 @@ class ClientList with ChangeNotifier {
         'dataEnd': data['dataEnd'],
       })
     );
-    final id = jsonDecode(response.body)['name'];
-    Client client = Client(
-      id: id,
-      matricula: matricula, 
-      name: data['nome'], 
-      genero: data['genero'], 
-      plano: data['plano'], 
-      status: data['status'], 
-      dateInit: DateTime.parse(data['dataIni']), 
-      dateEnd: DateTime.parse(data['dataEnd']),
-    );
+    if (response.statusCode >= 400) {
+      throw Exception();
+    }
   }
 
   Future<void> updateClient(Client client) async {
@@ -134,7 +127,7 @@ class ClientList with ChangeNotifier {
       Uri.parse('${Constants.CLIENT_BASE_URL}/${client.id}.json'),
       body: jsonEncode({
         'matricula': client.matricula,
-        'nome': client.name,
+        'nome': client.name.toUpperCase(),
         'genero': client.genero,
         'plano': client.plano,
         'status': client.status,
@@ -142,6 +135,7 @@ class ClientList with ChangeNotifier {
         'dataEnd': client.dateEnd.toIso8601String(),
       })
     );
+
     notifyListeners();
   }
 
@@ -153,7 +147,7 @@ class ClientList with ChangeNotifier {
       _clients.add(Client(
         id: clientId, 
         matricula: clientData['matricula'], 
-        name: clientData['nome'], 
+        name: (clientData['nome'] as String).toUpperCase(), 
         genero: clientData['genero'], 
         plano: clientData['plano'], 
         status: clientData['status'], 
@@ -166,11 +160,9 @@ class ClientList with ChangeNotifier {
 
   Future<void> removeClient(Client client) async {
     await http.delete(Uri.parse('${Constants.CLIENT_BASE_URL}/${client.id}.json'));
-    _clients.remove(client);
-    notifyListeners();
   }
 
-  void toggleStatus(Client client) {
+  Future<void> toggleStatus(Client client) async {
     DateTime current = DateTime.now();
     Client newClient = Client(
       id: client.id,
@@ -180,10 +172,17 @@ class ClientList with ChangeNotifier {
       plano: client.plano, 
       status: 'Ativo', 
       dateInit: current, 
-      dateEnd: Jiffy.parseFromDateTime(current).add(months: 1).dateTime,
+      dateEnd: client.plano == 'Mensal' 
+      ? Jiffy.parseFromDateTime(current).add(months: 1).dateTime
+      : Jiffy.parseFromDateTime(current).add(days: 7).dateTime,
     );
-    updateClient(newClient);
+    await updateClient(newClient).then((value) {
+      _clientSelected = newClient;
+    });
+
     notifyListeners();
+
+    return Future.value();
   }
 
   void getValueSearch(String value) {
@@ -191,33 +190,14 @@ class ClientList with ChangeNotifier {
     notifyListeners();
   }
 
-  void verifyStatusClient() {
+  Future<void> verifyStatusClient() async {
     DateTime current = DateTime.now();
     for (final client in _clients) {
       if (!client.dateEnd.isAfter(current)) {
-        Client newClient = Client(
-          id: client.id,
-          matricula: client.matricula,
-          name: client.name, 
-          genero: client.genero, 
-          plano: client.plano, 
-          status: 'Pendente', 
-          dateInit: client.dateInit, 
-          dateEnd: client.dateEnd,
+        await http.patch(
+          Uri.parse('${Constants.CLIENT_BASE_URL}/${client.id}.json'),
+          body: jsonEncode({'status': 'Pendente'})
         );
-        updateClient(newClient);
-      } else {
-        Client newClient = Client(
-          id: client.id, 
-          matricula: client.matricula,
-          name: client.name, 
-          genero: client.genero, 
-          plano: client.plano, 
-          status: 'Ativo', 
-          dateInit: client.dateInit, 
-          dateEnd: client.dateEnd,
-        );
-        updateClient(newClient);
       }
     }
   }

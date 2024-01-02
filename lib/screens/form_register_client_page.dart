@@ -128,8 +128,13 @@ class _FormRegisterClientPageState extends State<FormRegisterClientPage> {
                         _formData['dataIni'] = dateInit!.toIso8601String();
                         _formData['genero'] = genderSelected;
                         _formData['plano'] = planSelected;
-                        provider.addClient(_formData);
-                        Navigator.of(context).pushReplacementNamed(AppRoutes.CLIENT_SCREEN);
+                        provider.addClient(_formData).then((value) {
+                          Navigator.of(context).pushReplacementNamed(AppRoutes.CLIENT_SCREEN);
+                        }).catchError((error) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Erro ao conluir a ação. Tente novamente')));
+                        });
                       }, 
                       child: const Text('Cadastrar'),
                     ),

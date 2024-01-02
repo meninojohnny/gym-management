@@ -37,8 +37,10 @@ class _ClientScreenState extends State<ClientScreen> {
   void initState() {
     super.initState();
     Provider.of<ClientList>(context, listen: false).loadClients().then((value) {
-      setState(() {
-        isLoading = false;
+      Provider.of<ClientList>(context, listen: false).verifyStatusClient().then((value) {
+        setState(() {
+          isLoading = false;
+        });
       });
     });
   }
