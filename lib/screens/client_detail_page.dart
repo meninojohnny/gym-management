@@ -1,3 +1,4 @@
+import 'package:app_academia/components/custom_app_bar.dart';
 import 'package:app_academia/components/row_info.dart';
 import 'package:app_academia/models/client.dart';
 import 'package:app_academia/models/client_list.dart';
@@ -26,7 +27,6 @@ class _ClientDetailPageState extends State<ClientDetailPage> {
         Provider.of<ClientList>(context, listen: false).loadClientSelected().then((value) {
           setState(() {isLoading = false;});
         });
-
       });
     });
   }
@@ -36,21 +36,15 @@ class _ClientDetailPageState extends State<ClientDetailPage> {
     final provider = Provider.of<ClientList>(context);
     client = provider.clientSelected;
 
-    return isLoading ? const Center(child: CircularProgressIndicator(),) : 
-    Scaffold(
+    return Scaffold(
       backgroundColor: const Color.fromARGB(255, 158, 159, 157),
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
-        title: Container(alignment: Alignment.center,
-          child: Text(
-            client.name.toUpperCase(), 
-            style: const TextStyle(color: Colors.white),
-          ),
-        ),
+        title: CustomAppBar(title: client.name.toUpperCase()),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.of(context).pushReplacementNamed(AppRoutes.CLIENT_SCREEN);
+            Navigator.pop(context);
           },
         ),
         actions: [
@@ -59,7 +53,7 @@ class _ClientDetailPageState extends State<ClientDetailPage> {
               PopupMenuItem(
                 value: 0,
                 onTap: () {
-                  Navigator.of(context).pushReplacementNamed(AppRoutes.FORM_EDIT_CLIENT);
+                  Navigator.of(context).pushNamed(AppRoutes.FORM_EDIT_CLIENT);
                 },
                 child: const Row(
                   children: [
@@ -116,7 +110,8 @@ class _ClientDetailPageState extends State<ClientDetailPage> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
+      body: isLoading ? const Center(child: CircularProgressIndicator(),) 
+      : SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Container(

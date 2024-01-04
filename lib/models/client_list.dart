@@ -2,12 +2,13 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:app_academia/models/client.dart';
 import 'package:app_academia/utils/constants.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:http/http.dart' as http;
 
 class ClientList with ChangeNotifier {
-  final List<Client> _clients = [];
+  List<Client> _clients = [];
   bool _showPendentesOnly = false;
   bool _showAtivosOnly = false;
   bool searching = false;
@@ -24,10 +25,13 @@ class ClientList with ChangeNotifier {
   );
   
   Future<void> setClientSelected(String clientId) async {
+    int index = _clients.indexWhere((clie) => clie.id == clientId);
+    _clientSelected = _clients[index];
     await http.patch(
       Uri.parse('${Constants.CLIENT_SELECTED_URL}.json'),
       body: jsonEncode({'clientSelectedId': clientId})
     );
+    
   }
 
   get clientSelected => _clientSelected;
@@ -52,7 +56,7 @@ class ClientList with ChangeNotifier {
     } else if (_showAtivosOnly) {
       return _clients.where((client) => client.status == 'Ativo').toList();
     }
-    return sortClients(_clients);
+    return _clients;
   }
 
   List<Client> sortClients(List clients) {
@@ -123,7 +127,7 @@ class ClientList with ChangeNotifier {
   }
 
   Future<void> updateClient(Client client) async {
-    await http.patch(
+    final response = await http.patch(
       Uri.parse('${Constants.CLIENT_BASE_URL}/${client.id}.json'),
       body: jsonEncode({
         'matricula': client.matricula,
@@ -135,6 +139,14 @@ class ClientList with ChangeNotifier {
         'dataEnd': client.dateEnd.toIso8601String(),
       })
     );
+
+    if(response.statusCode >= 400) {
+      throw Exception();
+    } else {
+      int index = _clients.indexWhere((clie) => clie.id == client.id);
+      _clients[index] = client;
+      _clientSelected = client;
+    }
 
     notifyListeners();
   }

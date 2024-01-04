@@ -8,10 +8,7 @@ class CustomAppBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.center,
-      child: Text(
-        title,
-        style: TextStyle(color: Colors.white),
-      ),
+      child: Text(title),
     );
     
   }

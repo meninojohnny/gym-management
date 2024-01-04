@@ -1,3 +1,4 @@
+import 'package:app_academia/components/custom_app_bar.dart';
 import 'package:app_academia/components/input_data.dart';
 import 'package:app_academia/components/input_radio.dart';
 import 'package:app_academia/components/input_text.dart';
@@ -70,17 +71,11 @@ class _FormEditClientPage extends State<FormEditClientPage> {
       backgroundColor: const Color.fromARGB(255, 158, 159, 157),
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
-        title: Container(
-          alignment: Alignment.center,
-          child: const Text(
-            'Editar cliente', 
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
+        title: CustomAppBar(title: 'Editar cliente'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.of(context).pushReplacementNamed(AppRoutes.CLIENT_DETAIL);
+            Navigator.pop(context);
             provider.showAll();
           },
         ),
@@ -134,7 +129,7 @@ class _FormEditClientPage extends State<FormEditClientPage> {
                         provider.updateClient(Client(
                           id: client.id, 
                           matricula: client.matricula, 
-                          name: nomeController.text, 
+                          name: nomeController.text.toUpperCase(), 
                           genero: genderSelected, 
                           plano: planSelected, 
                           status: client.status, 
@@ -142,14 +137,16 @@ class _FormEditClientPage extends State<FormEditClientPage> {
                           dateEnd: dateEnd!,
                         )).then((value) {
                           Navigator.of(context).pushReplacementNamed(AppRoutes.CLIENT_DETAIL);
+                          Navigator.pop(context);
                         }).catchError((error) {
                           setState(() {isActionLoading = false;});
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               duration: Duration(seconds: 1),
-                              content: Text('Erro ao conluir a ação. Tente novamente')));
+                              content: Text('Erro ao conluir a ação. Tente novamente'),
+                            ),
+                          );
                         });
-
                       }, 
                       child: const Text('Atualizar'),
                     ),

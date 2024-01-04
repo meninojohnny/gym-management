@@ -21,7 +21,7 @@ enum FilterAlunos {
 }
 
 class _ClientScreenState extends State<ClientScreen> {
-  late List<Client> clients;
+  late List<Client> clients = [];
   late int totalAlunos;
   late int totalAlunosAtivos;
   late int totalAlunosPendentes;
@@ -47,13 +47,12 @@ class _ClientScreenState extends State<ClientScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     final provider = Provider.of<ClientList>(context);
-    clients = provider.clients;
     totalAlunos = provider.totalClients;
     totalAlunosAtivos = provider.totalClientsAtivos;
     totalAlunosPendentes = provider.totalClientsPendents;
     searching = provider.searching;
+    clients = provider.clients;
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 158, 159, 157),
@@ -63,7 +62,7 @@ class _ClientScreenState extends State<ClientScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.of(context).pushReplacementNamed(AppRoutes.HOME_PAGE);
+            Navigator.pop(context);
             provider.showAll();
           },
         ),

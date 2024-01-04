@@ -1,11 +1,10 @@
+import 'package:app_academia/components/custom_app_bar.dart';
 import 'package:app_academia/components/input_data.dart';
-import 'package:app_academia/components/input_label.dart';
 import 'package:app_academia/components/input_radio.dart';
 import 'package:app_academia/components/input_text.dart';
 import 'package:app_academia/models/client_list.dart';
 import 'package:app_academia/utils/app_routes.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:provider/provider.dart';
 
@@ -62,17 +61,11 @@ class _FormRegisterClientPageState extends State<FormRegisterClientPage> {
       backgroundColor: const Color.fromARGB(255, 158, 159, 157),
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
-        title: Container(
-          alignment: Alignment.center,
-          child: const Text(
-            'Cadastrar cliente', 
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
+        title: CustomAppBar(title: 'Cadastrar Cliente'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.of(context).pushReplacementNamed(AppRoutes.CLIENT_SCREEN);
+            Navigator.pop(context);
             provider.showAll();
           },
         ),
@@ -129,7 +122,7 @@ class _FormRegisterClientPageState extends State<FormRegisterClientPage> {
                         _formData['genero'] = genderSelected;
                         _formData['plano'] = planSelected;
                         provider.addClient(_formData).then((value) {
-                          Navigator.of(context).pushReplacementNamed(AppRoutes.CLIENT_SCREEN);
+                          Navigator.pop(context);
                         }).catchError((error) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
